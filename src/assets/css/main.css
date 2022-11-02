@@ -1,0 +1,28 @@
+.answer_box {
+    display: flex;
+}
+.answer_box .spell::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;    
+}
+
+.characters {
+    position: relative;
+    width: 48px;
+    height: 48px;
+}
+
+.spell {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    background-image: url("../testFont.png");
+}
+
+.spell.answer {
+    background-image: url("../testFontAnswer.png");
+}
