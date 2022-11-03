@@ -2,10 +2,10 @@
   <div class="wrap">
     <div class="answer_wrap">
       <div class="answer_word" v-for="(data, i) in answerData" :key="i">
-        <span :class="{ show: !isStart, finish: isFinish }">
+        <span :class="{ show: !isStart, finish: isFinish[i] }">
           {{ data }}
         </span>
-        <div class="characters" :class="isStart && 'show'">
+        <div class="characters" :class="isStart && !isFinish[i] ? 'show' : ''">
           <SpellingComponent
             v-for="(spelling, j) in answerConvertData[i]"
             :key="j"
@@ -51,13 +51,16 @@ const maxCharIndex = computed(() => answerConvertData.value.length - 1);
 const clickCount = ref(0);
 
 const isStart = ref(false);
-const isFinish = ref(false);
+const isFinish = ref<boolean[]>([]);
 
 const resetConfig = () => {
   currentCharIndex.value = 0;
   clickCount.value = 0;
   isStart.value = false;
-  isFinish.value = false;
+  isFinish.value = [];
+  for (let i = 0; i < answerData.value.length; i++) {
+    isFinish.value.push(false);
+  }
 };
 
 const convertData = (data: string[][]): SpellingInfo[][] => {
@@ -77,7 +80,7 @@ const convertData = (data: string[][]): SpellingInfo[][] => {
 };
 
 const clickNextBtn = () => {
-  if (isFinish.value) return;
+  if (isFinish.value[maxCharIndex.value]) return;
   if (!isStart.value) isStart.value = true;
 
   const lastIndex = answerConvertData.value[currentCharIndex.value].length - 1;
@@ -90,10 +93,10 @@ const clickNextBtn = () => {
     lastIndex === clickCount.value
   ) {
     isStart.value = false;
-    isFinish.value = true;
   }
   if (lastIndex === clickCount.value) {
     clickCount.value = 0;
+    isFinish.value[currentCharIndex.value] = true;
     currentCharIndex.value++;
   } else {
     clickCount.value++;
