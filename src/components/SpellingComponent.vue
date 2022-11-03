@@ -17,7 +17,7 @@ const props = defineProps({
 });
 
 const backgroundPosition = computed(() => ({
-  x: -((props.spellingInfo?.column ? props.spellingInfo.column : 0) * 48),
-  y: -((props.spellingInfo?.row ? props.spellingInfo.row : 0) * 48),
+  x: -((props.spellingInfo?.column ? props.spellingInfo.column : 0) * 100),
+  y: -((props.spellingInfo?.row ? props.spellingInfo.row : 0) * 100),
 }));
 </script>
