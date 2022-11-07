@@ -1,4 +1,4 @@
-const f = [
+const cho = [
   "ㄱ",
   "ㄲ",
   "ㄴ",
@@ -19,7 +19,7 @@ const f = [
   "ㅍ",
   "ㅎ",
 ];
-const s = [
+const joong = [
   "ㅏ",
   "ㅐ",
   "ㅑ",
@@ -42,7 +42,7 @@ const s = [
   "ㅢ",
   "ㅣ",
 ];
-const t = [
+const jong = [
   "ㄱ",
   "ㄲ",
   "ㄳ",
@@ -72,27 +72,42 @@ const t = [
   "ㅎ",
 ];
 
-const firstCondition = {
-  A: [
-    ["ㅏ", "ㅐ", "ㅑ", "ㅒ", "ㅓ", "ㅔ", "ㅕ", "ㅖ", "ㅣ"],
-    ["ㅗ", "ㅛ", "ㅡ"],
-    ["ㅜ", "ㅠ"],
-    ["ㅘ", "ㅙ", "ㅚ", "ㅢ"],
-    ["ㅝ", "ㅞ", "ㅟ"],
-  ],
-  B: [
-    ["ㅏ", "ㅐ", "ㅑ", "ㅒ", "ㅓ", "ㅔ", "ㅕ", "ㅖ", "ㅣ"],
-    ["ㅗ", "ㅛ", "ㅡ", "ㅜ", "ㅠ"],
-    ["ㅘ", "ㅙ", "ㅚ", "ㅢ", "ㅝ", "ㅞ", "ㅟ"],
-  ],
-};
+enum positionType {
+  cho = 0,
+  joong,
+  jong,
+}
 
-const secondCondition = [
+enum StartRowIndex {
+  cho = 0,
+  choJong = 8,
+  joong = 13,
+  joongJong = 15,
+  jong = 17,
+}
+
+const choCondition = [
+  ["ㅏ", "ㅑ", "ㅓ", "ㅕ", "ㅣ"],
+  ["ㅐ", "ㅒ", "ㅔ", "ㅖ"],
+  ["ㅗ", "ㅛ", "ㅡ"],
+  ["ㅜ", "ㅠ"],
+  ["ㅘ", "ㅚ", "ㅢ"],
+  ["ㅙ"],
+  ["ㅝ", "ㅟ"],
+  ["ㅞ"],
+  ["ㅏ", "ㅑ", "ㅓ", "ㅕ", "ㅣ"],
+  ["ㅐ", "ㅒ", "ㅔ", "ㅖ"],
+  ["ㅗ", "ㅛ", "ㅡ", "ㅜ", "ㅠ"],
+  ["ㅘ", "ㅚ", "ㅢ", "ㅝ", "ㅟ"],
+  ["ㅙ", "ㅞ"],
+];
+
+const joongCondition = [
   ["ㄱ", "ㅋ"],
   ["ㅅ", "ㅈ", "ㅊ", "ㄴ", "ㄷ", "ㄹ", "ㅁ", "ㅂ", "ㅇ", "ㅌ", "ㅍ", "ㅎ"],
 ];
 
-const thirdCondition = [
+const jongCondition = [
   ["ㅏ", "ㅑ", "ㅓ", "ㅕ", "ㅣ"],
   ["ㅘ", "ㅙ", "ㅚ", "ㅝ", "ㅞ", "ㅟ", "ㅢ"],
   ["ㅐ", "ㅒ", "ㅖ", "ㅔ"],
@@ -112,7 +127,7 @@ export const getConstantVowel = (kor: string) => {
   const fn = parseInt(String(uni / 588));
   const sn = parseInt(String((uni - fn * 588) / 28));
   const tn = parseInt(String(uni % 28)) - 1;
-  const result = tn < 0 ? [f[fn], s[sn]] : [f[fn], s[sn], t[tn]];
+  const result = tn < 0 ? [cho[fn], joong[sn]] : [cho[fn], joong[sn], jong[tn]];
   return result;
 };
 
@@ -121,36 +136,19 @@ export const getConstantVowel = (kor: string) => {
  * @param type 0: 초성, 1: 중성, 2: 종성
  */
 export const getRowIndex = (word: string[], type: number): number => {
-  const isThirdSpell = word.length === 3; // 종성의 여부
-  const startRowIndex = getRowStartIndex(type, isThirdSpell);
+  const isJong = word.length === 3; // 종성의 여부
+  const startRowIndex = getStartRowIndex(type, isJong);
+  const thisCondition = getCondition(type, isJong);
+  const standartType =
+    type === positionType.joong ? positionType.cho : positionType.joong;
 
   let result = 0;
+  thisCondition.forEach((data, i) => {
+    if (data.indexOf(word[standartType]) !== -1) {
+      result = startRowIndex + i;
+    }
+  });
 
-  if (type === 0 && isThirdSpell) {
-    firstCondition.B.forEach((data, i) => {
-      if (data.indexOf(word[1]) !== -1) {
-        result = startRowIndex + i;
-      }
-    });
-  } else if (type === 0) {
-    firstCondition.A.forEach((data, i) => {
-      if (data.indexOf(word[1]) !== -1) {
-        result = startRowIndex + i;
-      }
-    });
-  } else if (type === 1) {
-    secondCondition.forEach((data, i) => {
-      if (data.indexOf(word[0]) !== -1) {
-        result = startRowIndex + i;
-      }
-    });
-  } else if (type === 2) {
-    thirdCondition.forEach((data, i) => {
-      if (data.indexOf(word[1]) !== -1) {
-        result = startRowIndex + i;
-      }
-    });
-  }
   return result;
 };
 
@@ -161,11 +159,11 @@ export const getRowIndex = (word: string[], type: number): number => {
 export const getColIndex = (spell: string, type: number): number => {
   switch (type) {
     case 0:
-      return f.indexOf(spell);
+      return cho.indexOf(spell);
     case 1:
-      return s.indexOf(spell);
+      return joong.indexOf(spell);
     case 2:
-      return t.indexOf(spell);
+      return jong.indexOf(spell);
     default:
       return 0;
   }
@@ -174,15 +172,33 @@ export const getColIndex = (spell: string, type: number): number => {
 /**
  * @param type 0: 초성, 1: 중성, 2: 종성
  */
-const getRowStartIndex = (type: number, isThirdSpell: boolean): number => {
+const getStartRowIndex = (
+  type: positionType,
+  isJong: boolean
+): StartRowIndex => {
   switch (type) {
-    case 0:
-      return isThirdSpell ? 7 : 2;
-    case 1:
-      return isThirdSpell ? 12 : 10;
-    case 2:
-      return 14;
+    case positionType.cho:
+      return isJong ? StartRowIndex.choJong : StartRowIndex.cho;
+    case positionType.joong:
+      return isJong ? StartRowIndex.joongJong : StartRowIndex.joong;
+    case positionType.jong:
+      return StartRowIndex.jong;
     default:
       return 0;
+  }
+};
+
+const getCondition = (type: positionType, isJong: boolean): string[][] => {
+  switch (type) {
+    case positionType.cho:
+      return isJong
+        ? choCondition.slice(StartRowIndex.choJong - StartRowIndex.cho)
+        : choCondition.slice(0, StartRowIndex.choJong - StartRowIndex.cho);
+    case positionType.joong:
+      return joongCondition;
+    case positionType.jong:
+      return jongCondition;
+    default:
+      return jongCondition;
   }
 };

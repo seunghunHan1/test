@@ -1,6 +1,10 @@
 <template>
   <div
-    :class="`spell ${spellingInfo?.type}`"
+    :class="`spell ${spellingInfo?.type !== 'answer' && 'show'}`"
+    :style="`background-position: ${backgroundPosition.x}px ${backgroundPosition.y}px`"
+  ></div>
+  <div
+    :class="`spell answer ${spellingInfo?.type === 'answer' && 'show'}`"
     :style="`background-position: ${backgroundPosition.x}px ${backgroundPosition.y}px`"
   ></div>
 </template>
